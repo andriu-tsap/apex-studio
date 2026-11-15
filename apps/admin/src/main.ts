@@ -1,0 +1,4 @@
+import { bootstrapApplication } from '@angular/platform-browser';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { AppComponent } from './app';
+bootstrapApplication(AppComponent, { providers: [provideAnimationsAsync()] }).catch(console.error);

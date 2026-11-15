@@ -1,0 +1,10 @@
+CREATE TABLE "User" ("id" TEXT PRIMARY KEY,"email" TEXT NOT NULL UNIQUE,"name" TEXT NOT NULL,"password" TEXT NOT NULL,"role" TEXT NOT NULL DEFAULT 'customer',"createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE "Session" ("id" TEXT PRIMARY KEY,"userId" TEXT NOT NULL REFERENCES "User"("id") ON DELETE CASCADE,"tokenHash" TEXT NOT NULL UNIQUE,"expiresAt" TIMESTAMP(3) NOT NULL);
+CREATE INDEX "Session_userId_idx" ON "Session"("userId");
+CREATE TABLE "Booking" ("id" TEXT PRIMARY KEY,"userId" TEXT NOT NULL REFERENCES "User"("id"),"name" TEXT NOT NULL,"email" TEXT NOT NULL,"service" TEXT NOT NULL,"size" TEXT NOT NULL,"extra" BOOLEAN NOT NULL,"slot" TIMESTAMP(3) NOT NULL,"config" JSONB NOT NULL,"amount" INTEGER NOT NULL CHECK ("amount">=0),"status" TEXT NOT NULL DEFAULT 'confirmed',"idempotency" TEXT NOT NULL UNIQUE,"createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP);
+CREATE INDEX "Booking_slot_status_idx" ON "Booking"("slot","status");
+CREATE INDEX "Booking_userId_createdAt_idx" ON "Booking"("userId","createdAt");
+CREATE UNIQUE INDEX "Booking_active_slot_unique" ON "Booking"("slot") WHERE "status" <> 'cancelled';
+CREATE TABLE "Order" ("id" TEXT PRIMARY KEY,"userId" TEXT NOT NULL REFERENCES "User"("id"),"items" JSONB NOT NULL,"amount" INTEGER NOT NULL CHECK ("amount">=0),"status" TEXT NOT NULL DEFAULT 'pending',"stripeId" TEXT UNIQUE,"createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP);
+CREATE INDEX "Order_userId_createdAt_idx" ON "Order"("userId","createdAt");
+CREATE TABLE "WebhookEvent" ("id" TEXT PRIMARY KEY,"createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP);

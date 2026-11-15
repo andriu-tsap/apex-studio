@@ -1,0 +1,9 @@
+node_modules
+.next
+out
+preview
+.turbo
+pnpm-lock.yaml
+licenses
+
+docs/lighthouse-mobile.json

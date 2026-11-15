@@ -1,0 +1,10 @@
+{
+  "name": "@apex/widget",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node ../../scripts/build-widget.mjs",
+    "typecheck": "node --check src/widget.js"
+  }
+}

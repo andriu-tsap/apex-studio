@@ -1,0 +1,26 @@
+:root {
+  --bg: #0a0b0f;
+  --surface: #12141a;
+  --surface-raised: #1b1f29;
+  --text: #f4f7fb;
+  --muted: #a8b3c5;
+  --accent: #00f0ff;
+  --accent-ink: #031418;
+  --secondary: #ff2e88;
+  --line: #ffffff20;
+  --radius: 18px;
+  --heading: 'Space Grotesk', 'Inter', sans-serif;
+  --body: 'Inter', sans-serif;
+  color-scheme: dark;
+}
+:root[data-theme='light'] {
+  --bg: #f5f7fa;
+  --surface: #fff;
+  --surface-raised: #e6ebf2;
+  --text: #10141c;
+  --muted: #4c596b;
+  --accent: #007782;
+  --accent-ink: #fff;
+  --line: #10141c24;
+  color-scheme: light;
+}

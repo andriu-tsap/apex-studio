@@ -1,0 +1,40 @@
+{
+  "name": "@apex/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --hostname 0.0.0.0",
+    "build": "node ../../scripts/prepare-assets.mjs && next build && node ../../scripts/make-precache.mjs",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "next": "^15.5.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "next-intl": "^4.0.0",
+    "three": "^0.180.0",
+    "@react-three/fiber": "^9.3.0",
+    "@react-three/drei": "^10.7.0",
+    "framer-motion": "^12.23.0",
+    "@fontsource/inter": "^5.2.0",
+    "@fontsource/space-grotesk": "^5.2.0",
+    "@apex/ui": "workspace:*",
+    "@apex/types": "workspace:*",
+    "react-hook-form": "^7.62.0",
+    "@hookform/resolvers": "^5.2.0",
+    "zod": "^4.1.0",
+    "idb": "^8.0.3",
+    "jspdf": "^3.0.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@types/three": "^0.180.0",
+    "@types/node": "^22.0.0",
+    "tailwindcss": "^4.1.0",
+    "@tailwindcss/postcss": "^4.1.0",
+    "vitest": "^3.2.0"
+  }
+}

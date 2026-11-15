@@ -1,0 +1,59 @@
+generator client {
+ provider = "prisma-client-js"
+}
+datasource db {
+ provider = "postgresql"
+ url = env("DATABASE_URL")
+}
+model User {
+ id String @id @default(uuid())
+ email String @unique
+ name String
+ password String
+ role String @default("customer")
+ bookings Booking[]
+ sessions Session[]
+ orders Order[]
+ createdAt DateTime @default(now())
+}
+model Session {
+ id String @id @default(uuid())
+ userId String
+ user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+ tokenHash String @unique
+ expiresAt DateTime
+ @@index([userId])
+}
+model Booking {
+ id String @id @default(uuid())
+ userId String
+ user User @relation(fields:[userId],references:[id])
+ name String
+ email String
+ service String
+ size String
+ extra Boolean
+ slot DateTime
+ config Json
+ amount Int
+ status String @default("confirmed")
+ idempotency String @unique
+ createdAt DateTime @default(now())
+ @@index([slot,status])
+ @@index([userId,createdAt])
+}
+model Order {
+ id String @id @default(uuid())
+ userId String
+ user User @relation(fields:[userId],references:[id])
+ items Json
+ amount Int
+ status String @default("pending")
+ stripeId String? @unique
+ createdAt DateTime @default(now())
+ @@index([userId,createdAt])
+}
+model WebhookEvent {
+ id String @id
+ createdAt DateTime @default(now())
+}

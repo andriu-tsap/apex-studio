@@ -1,0 +1,194 @@
+<div class="demo-banner">APEX STUDIO · {{ t('note') }}</div>
+<header>
+  <a class="logo" href="http://localhost:3000">APEX <small>WORKSPACE</small></a>
+  <div class="languages">
+    <button (click)="locale.set('pl')">PL</button><button (click)="locale.set('en')">EN</button
+    ><button (click)="locale.set('ua')">UA</button>
+  </div>
+</header>
+@if(mode()==='login'){
+<main class="login">
+  <p class="eyebrow">APEX / CRM</p>
+  <h1>{{t('title')}}</h1>
+  <p>{{t('note')}}</p>
+  <form (ngSubmit)="login()">
+    <label
+      >{{t('email')}}<input
+        name="email"
+        type="email"
+        required
+        [(ngModel)]="email"
+        autocomplete="username" /></label
+    ><label
+      >{{t('password')}}<input
+        name="password"
+        type="password"
+        required
+        [(ngModel)]="password"
+        autocomplete="current-password" /></label
+    ><button mat-flat-button type="submit" [disabled]="busy()">{{t('login')}}</button>
+  </form>
+  <button class="demo-enter" mat-stroked-button (click)="demo()">{{t('demoLogin')}}</button>
+</main>
+}@else{
+<div class="workspace">
+  <aside>
+    <p class="eyebrow">{{mode()==='demo'?t('demo'):'API / LIVE'}}</p>
+    <h2>{{t('title')}}</h2>
+    <nav>
+      <button [class.active]="tab()==='calendar'" (click)="tab.set('calendar')">
+        01 / {{t('calendar')}}</button
+      ><button [class.active]="tab()==='clients'" (click)="tab.set('clients')">
+        02 / {{t('clients')}}</button
+      ><button [class.active]="tab()==='reports'" (click)="tab.set('reports')">
+        03 / {{t('reports')}}
+      </button>
+    </nav>
+    <p>{{t('role')}}: {{role()}}</p>
+    @if(mode()==='demo'){<select
+      aria-label="Demo role"
+      [ngModel]="role()"
+      (ngModelChange)="role.set($event)"
+    >
+      <option value="admin">admin</option>
+      <option value="manager">manager</option></select
+    >}<button mat-stroked-button (click)="logout()">{{t('logout')}}</button>
+  </aside>
+  <main class="content">
+    <div class="content-title">
+      <h1>{{tab()==='calendar'?t('calendar'):tab()==='clients'?t('clients'):t('reports')}}</h1>
+      <span class="badge">{{mode()==='demo'?t('demo'):'API connected'}}</span>
+    </div>
+    @if(tab()==='calendar'){
+    <p>{{t('note')}}</p>
+    <div class="calendar" cdkDropListGroup>
+      @for(day of days();track day){
+      <section class="day">
+        <h3>{{day}}</h3>
+        @for(time of times;track time){
+        <div
+          class="slot"
+          cdkDropList
+          [cdkDropListData]="day+'|'+time"
+          (cdkDropListDropped)="drop($event,day,time)"
+        >
+          <span class="time">{{time}}</span>@for(booking of at(day,time);track booking.id){
+          <article class="booking" cdkDrag [cdkDragData]="booking">
+            <strong>{{booking.name}}</strong
+            ><span>{{booking.service}} · {{currency(booking.amount)}}</span
+            ><label
+              >{{t('status')}}<select
+                [ngModel]="booking.status"
+                (ngModelChange)="update(booking.id,{status:$event})"
+              >
+                <option value="confirmed">confirmed</option>
+                <option value="in_progress">in_progress</option>
+                <option value="completed">completed</option>
+                <option value="cancelled">cancelled</option>
+              </select></label
+            ><label
+              >{{t('calendar')}}<input
+                type="date"
+                [ngModel]="booking.date"
+                (ngModelChange)="update(booking.id,{date:$event,time:booking.time})" /></label
+            ><select
+              aria-label="Time"
+              [ngModel]="booking.time"
+              (ngModelChange)="update(booking.id,{date:booking.date,time:$event})"
+            >
+              @for(hour of times;track hour){
+              <option [value]="hour">{{hour}}</option>
+              }
+            </select>
+          </article>
+          }@empty{<span class="empty">{{t('empty')}}</span>}
+        </div>
+        }
+      </section>
+      }
+    </div>
+    }@else if(tab()==='clients'){
+    <label class="search"
+      >{{t('search')}}<input type="search" [ngModel]="search()" (ngModelChange)="filter($event)"
+    /></label>
+    <div class="table-scroll">
+      <table
+        mat-table
+        [dataSource]="visibleClients()"
+        matSort
+        (matSortChange)="sortChanged($event)"
+      >
+        <ng-container matColumnDef="name"
+          ><th mat-header-cell *matHeaderCellDef mat-sort-header>{{t('name')}}</th>
+          <td mat-cell *matCellDef="let client">{{client.name}}</td></ng-container
+        ><ng-container matColumnDef="email"
+          ><th mat-header-cell *matHeaderCellDef mat-sort-header>{{t('email')}}</th>
+          <td mat-cell *matCellDef="let client">{{client.email}}</td></ng-container
+        ><ng-container matColumnDef="bookings"
+          ><th mat-header-cell *matHeaderCellDef>{{t('bookings')}}</th>
+          <td mat-cell *matCellDef="let client">{{client._count?.bookings || 0}}</td></ng-container
+        ><ng-container matColumnDef="role"
+          ><th mat-header-cell *matHeaderCellDef>{{t('role')}}</th>
+          <td mat-cell *matCellDef="let client">
+            <button mat-button [disabled]="role()!=='admin'" (click)="changeRole(client.id)">
+              {{client.role||'customer'}} → manager
+            </button>
+          </td></ng-container
+        >
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row;columns:columns"></tr>
+      </table>
+    </div>
+    <mat-paginator
+      [length]="clientCount()"
+      [pageSize]="10"
+      [pageIndex]="page()"
+      (page)="pageChanged($event)"
+      aria-label="Customers pagination"
+    />
+    }@else{
+    <div class="report-top">
+      <article class="metric">
+        <span>{{t('revenue')}}</span><strong>{{currency(totalRevenue())}}</strong>
+      </article>
+      <button mat-flat-button (click)="export()">{{t('export')}}</button>
+    </div>
+    <div class="chart" role="img" [attr.aria-label]="t('revenue')">
+      @for(row of reports();track row.month){
+      <div class="bar-row">
+        <span>{{row.month}}</span>
+        <div class="bar-track">
+          <div class="bar" [style.width.%]="row.revenue/maxRevenue()*100"></div>
+        </div>
+        <strong>{{currency(row.revenue)}}</strong>
+      </div>
+      }
+    </div>
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th>{{t('revenue')}}</th>
+          <th>{{t('bookings')}}</th>
+          <th>Σ PLN</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for(row of reports();track row.month){
+        <tr>
+          <td>{{row.month}}</td>
+          <td>{{currency(row.revenue)}}</td>
+          <td>{{row.bookings}}</td>
+          <td>{{currency(row.running)}}</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+    }
+  </main>
+</div>
+} @if(error()){
+<div class="error" role="alert">
+  {{error()}}<button aria-label="Close" (click)="error.set('')">×</button>
+</div>
+}

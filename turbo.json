@@ -1,0 +1,24 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**", "out/**", "dist/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["^typecheck"]
+    },
+    "test": {
+      "cache": false
+    }
+  },
+  "globalPassThroughEnv": [
+    "DATABASE_URL",
+    "PYTHON_URL",
+    "SERVICE_TOKEN",
+    "JWT_SECRET",
+    "CORS_ORIGINS",
+    "NEXT_TELEMETRY_DISABLED"
+  ],
+  "globalEnv": ["NEXT_PUBLIC_*"]
+}

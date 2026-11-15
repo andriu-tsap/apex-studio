@@ -1,0 +1,11 @@
+{
+  "date": "2026-11-14",
+  "tool": "Lighthouse 12.8.2",
+  "profile": "mobile default; local gzip static preview; initial simplified 3D",
+  "scores": {
+    "performance": 94,
+    "accessibility": 100,
+    "best-practices": 96,
+    "seo": 100
+  }
+}

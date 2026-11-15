@@ -1,0 +1,63 @@
+name: APEX platform checks
+on:
+  push:
+  pull_request:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: apex
+          POSTGRES_PASSWORD: apex-ci-demo
+          POSTGRES_DB: apex_test
+        ports: ['5432:5432']
+        options: --health-cmd "pg_isready -U apex" --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      DATABASE_URL: postgresql://apex:apex-ci-demo@localhost:5432/apex_test
+      PYTHON_URL: http://localhost:8001
+      SERVICE_TOKEN: local-demo-service-token
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.30.3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: apps/py-service/requirements.txt
+      - run: pnpm install --frozen-lockfile
+      - run: pip install -r apps/py-service/requirements.txt
+      - run: pnpm format:check
+      - run: pnpm lint
+      - run: pnpm db:generate && pnpm db:migrate && pnpm db:seed
+      - run: cd apps/py-service && uvicorn main:app --port 8001 > /tmp/apex-python.log 2>&1 &
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: python -m pytest apps/py-service -q
+      - run: pnpm build && pnpm preview:prepare
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e
+      - name: Mobile Lighthouse
+        run: |
+          PORT=4175 node scripts/preview.mjs > /tmp/apex-preview.log 2>&1 &
+          node -e "(async()=>{for(let i=0;i<30;i++){try{if((await fetch('http://127.0.0.1:4175')).ok)return;}catch{}await new Promise(r=>setTimeout(r,200));}process.exit(1)})()"
+          export CHROME_PATH=$(node -e "process.stdout.write(require('@playwright/test').chromium.executablePath())")
+          npx --yes lighthouse@12.8.2 http://127.0.0.1:4175/en/ --quiet --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" --only-categories=performance,accessibility,best-practices,seo --output=json --output-path=/tmp/lighthouse.json
+          node scripts/check-lighthouse.mjs /tmp/lighthouse.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-validation
+          path: |
+            apps/web/out
+            apps/admin/dist/browser
+            playwright-report
+            /tmp/lighthouse.json

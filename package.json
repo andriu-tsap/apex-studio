@@ -1,0 +1,28 @@
+{
+  "name": "apex-studio",
+  "private": true,
+  "packageManager": "pnpm@10.30.3",
+  "scripts": {
+    "dev": "pnpm --filter @apex/web dev",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "dev:api": "pnpm --filter @apex/api dev",
+    "dev:admin": "pnpm --filter @apex/admin dev",
+    "db:generate": "pnpm --filter @apex/api db:generate",
+    "db:migrate": "pnpm --filter @apex/api db:migrate",
+    "db:seed": "pnpm --filter @apex/api db:seed",
+    "test:e2e": "playwright test",
+    "preview:prepare": "node scripts/copy-preview.mjs",
+    "lint": "eslint apps packages tests"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.0",
+    "prettier": "^3.6.2",
+    "@playwright/test": "^1.56.0",
+    "eslint": "^10.0.0",
+    "typescript-eslint": "^8.42.0"
+  }
+}
