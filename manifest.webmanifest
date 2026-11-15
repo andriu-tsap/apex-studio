@@ -1,0 +1,23 @@
+{
+  "name": "APEX Studio · Concept / demo",
+  "short_name": "APEX",
+  "description": "Interactive automotive studio portfolio concept",
+  "start_url": "/apex-studio/pl/",
+  "scope": "/apex-studio/",
+  "display": "standalone",
+  "background_color": "#0A0B0F",
+  "theme_color": "#00F0FF",
+  "icons": [
+    {
+      "src": "/apex-studio/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/apex-studio/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
